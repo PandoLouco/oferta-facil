@@ -1,3 +1,51 @@
+
+function updateProduct(data){
+  found = data;
+
+  $('manualName').value = data.title || '';
+  $('manualOld').value = data.originalPrice != null
+    ? money(data.originalPrice) : '';
+  $('manualPrice').value = data.price != null
+    ? money(data.price) : '';
+
+  $('pname').textContent = data.title || 'Nome não identificado';
+
+  const old = data.originalPrice;
+  const price = data.price;
+  let priceHtml = '';
+
+  if (old != null && price != null && old > price) {
+    priceHtml += '<span class="old">De: R$ ' +
+      money(old) + '</span> · ';
+  }
+
+  if (price != null) {
+    priceHtml += '<span class="new">Por: R$ ' +
+      money(price) + '</span>';
+  } else {
+    priceHtml += '<span>Preço não encontrado automaticamente.</span>';
+  }
+
+  $('pprice').innerHTML = priceHtml;
+
+  const photo = $('photo');
+  photo.onerror = () => {
+    photo.onerror = null;
+    photo.removeAttribute('src');
+    photo.classList.add('hidden');
+  };
+
+  if (data.thumbnail) {
+    photo.src = data.thumbnail;
+    photo.classList.remove('hidden');
+  } else {
+    photo.removeAttribute('src');
+    photo.classList.add('hidden');
+  }
+
+  $('product').classList.remove('hidden');
+  buildMessage();
+}
 <!doctype html>
 <html lang="pt-BR">
 <head>
