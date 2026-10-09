@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Oferta Fácil</title>
+<style>
+:root{--bg:#0b1220;--panel:#121c2e;--line:#26344a;--text:#eef4ff;--muted:#a7b5ca;--green:#22c55e;--blue:#60a5fa}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#08111f,#101c30);font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;color:var(--text);min-height:100vh}
+.wrap{max-width:1000px;margin:auto;padding:28px 18px 48px}.top{display:flex;align-items:center;gap:12px;margin-bottom:24px}.logo{width:46px;height:46px;border-radius:14px;background:#163d32;display:grid;place-items:center;font-size:24px}.top h1{font-size:23px;margin:0}.top p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.layout{display:grid;grid-template-columns:.85fr 1.15fr;gap:18px}.card{background:rgba(18,28,46,.96);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 16px 40px #0002}.card h2{font-size:17px;margin:0 0 6px}.sub{color:var(--muted);font-size:13px;margin:0 0 20px;line-height:1.5}
+label{display:block;font-size:12px;font-weight:700;color:#c6d3e5;margin:15px 0 7px}input,textarea{width:100%;background:#0b1424;border:1px solid #314158;color:var(--text);border-radius:10px;padding:12px 13px;font:inherit;font-size:14px;outline:none}input:focus,textarea:focus{border-color:var(--blue)}textarea{min-height:260px;resize:vertical;line-height:1.6}
+.btn{border:0;border-radius:10px;padding:12px 15px;font-weight:800;font-size:14px;cursor:pointer}.btn:hover{filter:brightness(1.08)}.primary{background:var(--green);color:#05210f}.secondary{background:#263750;color:#eaf2ff}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}.status{display:none;margin-top:12px;padding:10px 12px;border-radius:9px;background:#17372b;color:#a7f3c6;font-size:13px}.status.error{background:#442328;color:#ffc5ca}.tag{display:inline-block;font-size:11px;background:#1e3048;color:#b8d6ff;border-radius:20px;padding:5px 9px;margin-bottom:12px}.product{display:flex;gap:14px;align-items:center;margin:14px 0;padding:12px;background:#0b1424;border:1px solid #26344a;border-radius:12px}.product img{width:90px;height:90px;object-fit:contain;background:white;border-radius:8px}.product .name{font-weight:700;font-size:14px;line-height:1.4}.price{font-size:13px;color:#b7c7dc;margin-top:7px}.old{text-decoration:line-through;color:#91a0b5}.new{color:#86efac;font-weight:800}.hidden{display:none!important}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.wrap{padding:20px 12px}.card{padding:17px}}
+</style></head>
+<body><div class="wrap">
+<header class="top"><div class="logo">🚀</div><div><h1>Oferta Fácil</h1><p>Cole um link do Mercado Livre e gere sua mensagem promocional</p></div></header>
+<div class="layout">
+<section class="card"><span class="tag">1 · BUSCAR PRODUTO</span><h2>Link do produto</h2><p class="sub">Cole um link normal ou encurtado do Mercado Livre. O sistema tentará buscar os dados públicos do anúncio.</p>
+<label for="link">Link do Mercado Livre</label><input id="link" type="url" placeholder="https://meli.la/1BoNN75">
+<div class="actions"><button class="btn primary" id="lookup">Buscar produto</button><button class="btn secondary" id="reset">Limpar</button></div>
+<div class="status" id="status"></div>
+<div id="product" class="product hidden"><img id="photo" alt="Foto do produto"><div><div class="name" id="pname"></div><div class="price" id="pprice"></div></div></div>
+<p class="hint">O sistema não inventa preços: se não conseguir confirmar algum dado, ele informa e permite completar manualmente.</p>
+<label for="manualName">Nome (se necessário)</label><input id="manualName" placeholder="Preenchido automaticamente quando disponível">
+<label for="manualOld">Preço original (opcional)</label><input id="manualOld" placeholder="Ex.: 112,80">
+<label for="manualPrice">Preço atual (opcional)</label><input id="manualPrice" placeholder="Ex.: 74,00">
+</section>
+<section class="card"><span class="tag">2 · MENSAGEM PRONTA</span><h2>Revise e compartilhe</h2><p class="sub">A mensagem é gerada com os dados encontrados. Você pode editar antes de copiar.</p>
+<textarea id="message" placeholder="Depois de buscar o produto, o texto aparecerá aqui..."></textarea>
+<div class="actions"><button class="btn primary" id="generate">Atualizar texto</button><button class="btn secondary" id="copy">Copiar texto</button></div>
+<p class="hint">Este app prepara o texto; ele não envia automaticamente pelo WhatsApp comum. Basta copiar e colar no grupo desejado.</p>
+</section></div></div>
+<script>
+const $=id=>document.getElementById(id);let found=null;
+function status(msg,error=false){const el=$('status');el.textContent=msg;el.className='status'+(error?' error':'');el.style.display='block'}
+function money(n){if(n===null||n===undefined||n==='')return '';let x=typeof n==='number'?n:Number(String(n).trim().replace(/\./g,'').replace(',','.'));return Number.isFinite(x)?x.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):''}
+function parseMoney(s){if(!s.trim())return null;const n=Number(s.trim().replace(/\./g,'').replace(',','.'));return Number.isFinite(n)?n:null}
+function updateProduct(data){found=data;$('manualName').value=data.title||'';$('manualOld').value=data.originalPrice!=null?money(data.originalPrice):'';$('manualPrice').value=data.price!=null?money(data.price):'';$('pname').textContent=data.title||'Nome não identificado';$('pprice').innerHTML=(data.originalPrice!=null&&data.originalPrice>data.price?'<span class="old">De: R$ '+money(data.originalPrice)+'</span> · ':'')+'<span class="new">Por: R$ '+money(data.price)+'</span>';if(data.thumbnail){$('photo').src=data.thumbnail;$('photo').onerror=()=>{$('photo').src='';};$('photo').classList.remove('hidden')}else{$('photo').src='';}$('product').classList.remove('hidden');buildMessage()}
+function buildMessage(){const link=$('link').value.trim();const title=$('manualName').value.trim();const old=parseMoney($('manualOld').value);const price=parseMoney($('manualPrice').value);if(!link||!title){return}
+const promo=old!==null&&price!==null&&old>price;const lines=['🚀 *OFERTA IMPERDÍVEL!* 🚀','', '🛍️ *'+title+'*'];if(promo)lines.push('🏷️ De: ~R$ '+money(old)+'~');if(price!==null)lines.push('💰 *Por apenas:* R$ '+money(price));if(!promo&&old!==null&&price!==null&&old<=price)lines.push('ℹ️ Preço consultado: R$ '+money(price));lines.push('','🔗 *Garanta o seu:* '+link,'','⏳ Aproveite antes que a oferta acabe!');$('message').value=lines.join('\n')}
+$('lookup').onclick=async()=>{const link=$('link').value.trim();if(!link)return status('Cole o link primeiro.',true);try{new URL(link)}catch(e){return status('O link não parece válido. Use a URL completa com https://',true)}$('lookup').disabled=true;$('lookup').textContent='Buscando...';try{const r=await fetch('/api/product?url='+encodeURIComponent(link));const d=await r.json();if(!r.ok)throw new Error(d.error||'Não foi possível consultar este produto.');updateProduct(d);status('Produto consultado. Confira os dados e o preço antes de compartilhar.')}catch(e){status(e.message+' Você pode preencher os dados manualmente.',true)}finally{$('lookup').disabled=false;$('lookup').textContent='Buscar produto'}};
+$('generate').onclick=()=>{buildMessage();if(!$('message').value)status('Busque um produto ou preencha o nome e o link.',true);else status('Texto atualizado. Confira os dados antes de compartilhar.')};
+['manualName','manualOld','manualPrice','link'].forEach(id=>$(id).addEventListener('input',()=>{if($('manualName').value&&$('link').value)buildMessage()}));
+$('copy').onclick=async()=>{if(!$('message').value)return status('Gere a mensagem primeiro.',true);try{await navigator.clipboard.writeText($('message').value);status('Texto copiado! Agora é só colar no grupo do WhatsApp.')}catch(e){$('message').select();document.execCommand('copy');status('Texto copiado!')}};
+$('reset').onclick=()=>{['link','manualName','manualOld','manualPrice','message'].forEach(id=>$(id).value='');$('product').classList.add('hidden');$('status').style.display='none';found=null};
+</script></body></html>
