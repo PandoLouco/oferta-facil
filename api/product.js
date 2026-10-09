@@ -21,6 +21,7 @@ export default async function handler(req, res) {
 
   const allowedHost = (hostname) => {
     const host = hostname.toLowerCase();
+
     return [
       "meli.la",
       "mercadolivre.com.br",
@@ -44,9 +45,8 @@ export default async function handler(req, res) {
 
   try {
     let currentUrl = parsed.toString();
-    let response;
+    let response = null;
 
-    // Segue redirecionamentos, validando cada destino.
     for (let i = 0; i < 6; i++) {
       const current = new URL(currentUrl);
 
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       response = await fetch(currentUrl, {
         redirect: "manual",
         headers: {
-          "User-Agent": "Mozilla/5.0 OfertaFacil/1.0",
+          "User-Agent": "Mozilla/5.0 (compatible; OfertaFacil/1.0)",
           "Accept": "text/html,application/json"
         }
       });
@@ -78,25 +78,113 @@ export default async function handler(req, res) {
       break;
     }
 
+    if (!response || !response.ok) {
+      return res.status(502).json({
+        error: "O Mercado Livre não permitiu consultar esta página. Tente um link direto do produto."
+      });
+    }
+
     const finalUrl = currentUrl;
-    const html = response ? await response.text() : "";
+    const html = await response.text();
+
+    // Lê metadados HTML mesmo quando os atributos mudam de ordem.
+    const decode = (value) => value
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;|&#x27;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+      .replace(/&#x([0-9a-f]+);/gi, (_, n) =>
+        String.fromCodePoint(parseInt(n, 16))
+      );
+
+    const getMeta = (keys) => {
+      const tags = html.match(/<meta\b[^>]*>/gi) || [];
+
+      for (const key of keys) {
+        for (const tag of tags) {
+          const attr = (name) => {
+            const match = tag.match(
+              new RegExp("\\b" + name + "\\s*=\\s*([\"'])(.*?)\\1", "i")
+            );
+            return match ? match[2] : null;
+          };
+
+          const property = attr("property") || attr("name");
+          if (property && property.toLowerCase() === key.toLowerCase()) {
+            const content = attr("content");
+            if (content) return decode(content);
+          }
+        }
+      }
+
+      return null;
+    };
+
+    const toPrice = (value) => {
+      if (value == null || value === "") return null;
+
+      let normalized = String(value).trim();
+
+      // Metadados de preço normalmente usam ponto decimal.
+      if (/^\d{1,3}(\.\d{3})+,\d{1,2}$/.test(normalized)) {
+        normalized = normalized.replace(/\./g, "").replace(",", ".");
+      } else if (normalized.includes(",") && !normalized.includes(".")) {
+        normalized = normalized.replace(",", ".");
+      }
+
+      const number = Number(normalized);
+      return Number.isFinite(number) && number >= 0 ? number : null;
+    };
+
+    const title = getMeta(["og:title", "twitter:title"]);
+    const image = getMeta(["og:image", "twitter:image"]);
+    let price = toPrice(getMeta([
+      "product:price:amount",
+      "og:price:amount"
+    ]));
+    let originalPrice = toPrice(getMeta([
+      "product:original_price:amount",
+      "og:original_price:amount"
+    ]));
+
+    // Procura o ID apenas em URLs e links de anúncio,
+    // nunca no endereço da imagem.
+    const urlCandidates = [finalUrl, input];
+
+    const canonical = getMeta(["og:url"]);
+    if (canonical) urlCandidates.push(canonical);
+
+    const linkMatches = html.matchAll(
+      /(?:href|content)=["']([^"']*(?:MLB-?\d{8,}|\/p\/MLB\d+)[^"']*)["']/gi
+    );
+
+    for (const match of linkMatches) {
+      urlCandidates.push(decode(match[1]));
+    }
 
     let itemId = null;
 
-    for (const candidate of [
-      finalUrl,
-      input,
-      html.slice(0, 500000)
-    ]) {
-      const match = candidate.match(/\b(MLB-?\d{6,})\b/i);
+    for (const candidate of urlCandidates) {
+      try {
+        const url = new URL(candidate, finalUrl);
+        if (!allowedHost(url.hostname)) continue;
 
-      if (match) {
-        itemId = match[1].replace("-", "").toUpperCase();
-        break;
+        const match = url.pathname.match(
+          /(?:^|\/)(MLB-?\d{8,})(?=[-/._]|$)/i
+        );
+
+        if (match) {
+          itemId = match[1].replace("-", "").toUpperCase();
+          break;
+        }
+      } catch {
+        // Ignora URLs que não puderem ser interpretadas.
       }
     }
 
-    // Consulta a API pública do Mercado Livre.
+    // Consulta a API do anúncio quando encontra um ID confiável.
     if (itemId) {
       try {
         const apiResponse = await fetch(
@@ -112,15 +200,13 @@ export default async function handler(req, res) {
             return res.status(200).json({
               id: item.id,
               title: item.title,
-              price: typeof item.price === "number"
-                ? item.price : null,
-              originalPrice:
-                typeof item.original_price === "number"
-                  ? item.original_price : null,
+              price: toPrice(item.price),
+              originalPrice: toPrice(item.original_price),
               thumbnail:
                 item.secure_thumbnail ||
                 item.thumbnail ||
                 item.pictures?.[0]?.secure_url ||
+                image ||
                 null,
               permalink: item.permalink || finalUrl,
               source: "Mercado Livre API"
@@ -128,61 +214,60 @@ export default async function handler(req, res) {
           }
         }
       } catch {
-        // Tenta obter os metadados da página.
+        // Continua tentando obter dados da página.
       }
     }
 
-    // Alternativa: metadados Open Graph da página.
-    const getMeta = (keys) => {
-      for (const key of keys) {
-        const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Tenta dados estruturados de produto e oferta.
+    const jsonLdMatches = html.matchAll(
+      /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+    );
 
-        const patterns = [
-          new RegExp(
-            `<meta\\b[^>]*(?:property|name)=["']${escaped}["'][^>]*content=["']([^"']*)["'][^>]*>`,
-            "i"
-          ),
-          new RegExp(
-            `<meta\\b[^>]*content=["']([^"']*)["'][^>]*(?:property|name)=["']${escaped}["'][^>]*>`,
-            "i"
-          )
-        ];
+    const inspectProduct = (node) => {
+      if (!node || typeof node !== "object") return;
 
-        for (const pattern of patterns) {
-          const match = html.match(pattern);
+      if (Array.isArray(node)) {
+        node.forEach(inspectProduct);
+        return;
+      }
 
-          if (match) {
-            return match[1]
-              .replace(/&amp;/g, "&")
-              .replace(/&quot;/g, '"')
-              .replace(/&#39;/g, "'")
-              .replace(/&lt;/g, "<")
-              .replace(/&gt;/g, ">");
+      const type = node["@type"];
+      const types = Array.isArray(type) ? type : [type];
+
+      if (types.includes("Product")) {
+        const offers = Array.isArray(node.offers)
+          ? node.offers[0]
+          : node.offers;
+
+        if (offers && typeof offers === "object") {
+          if (price == null) {
+            price = toPrice(offers.price ?? offers.lowPrice);
+          }
+
+          if (originalPrice == null) {
+            originalPrice = toPrice(offers.highPrice);
           }
         }
       }
 
-      return null;
+      if (node["@graph"]) inspectProduct(node["@graph"]);
     };
 
-    const title = getMeta(["og:title", "twitter:title"]);
-    const image = getMeta(["og:image", "twitter:image"]);
-    const priceRaw = getMeta([
-      "product:price:amount",
-      "og:price:amount"
-    ]);
+    for (const match of jsonLdMatches) {
+      try {
+        inspectProduct(JSON.parse(match[1]));
+      } catch {
+        // Ignora JSON-LD incompleto ou inválido.
+      }
+    }
 
-    const price = priceRaw
-      ? Number(priceRaw.replace(",", "."))
-      : null;
-
-    if (title || image || Number.isFinite(price)) {
+    if (title || image || price != null) {
       return res.status(200).json({
         title: title
           ? title.replace(/\s*\|\s*Mercado Livre.*$/i, "").trim()
           : null,
-        price: Number.isFinite(price) ? price : null,
-        originalPrice: null,
+        price,
+        originalPrice,
         thumbnail: image,
         permalink: finalUrl,
         source: "metadados da página"
@@ -190,15 +275,11 @@ export default async function handler(req, res) {
     }
 
     return res.status(422).json({
-      error:
-        "Não consegui identificar os dados do anúncio. " +
-        "Tente um link direto do produto."
+      error: "Não consegui identificar os dados deste anúncio. Tente copiar o link direto do produto."
     });
-  } catch (err) {
+  } catch {
     return res.status(502).json({
-      error:
-        "Falha ao consultar o link. Tente novamente ou use " +
-        "um link direto do produto."
+      error: "Falha ao consultar o link. Tente novamente mais tarde."
     });
   }
 }
