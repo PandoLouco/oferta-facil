@@ -4,88 +4,82 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101828">
-<title>Oferta Fácil — encontre ofertas</title>
+<title>Oferta Fácil — preparar ofertas</title>
 <style>
 :root{--bg:#f4f6fa;--ink:#172033;--muted:#667085;--brand:#ffcf33;--line:#e5e7eb;--green:#087443}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
-header{background:#101828;color:white;padding:24px 18px 28px} .wrap{max-width:1100px;margin:auto}
-.brand{font-weight:900;font-size:26px;letter-spacing:-.7px}.brand span{color:var(--brand)}header p{color:#d0d5dd;margin:8px 0 0;line-height:1.5}
-main{max-width:1100px;margin:22px auto;padding:0 16px 48px}
-.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 16px #10182808}
-.controls{display:grid;grid-template-columns:1fr 220px 160px;gap:10px}
-input,select,button{font:inherit;border-radius:10px;padding:12px;border:1px solid #d0d5dd;min-width:0}
-input:focus,select:focus{outline:2px solid #f5c842;border-color:#e5b900}
-button{border:0;font-weight:750;cursor:pointer;background:var(--brand);color:#242424}
-button:disabled{opacity:.55;cursor:wait}.hint{color:var(--muted);font-size:13px;line-height:1.5;margin:12px 0 0}
-.status{margin:16px 0;color:var(--muted);font-size:14px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.card{background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
-.imagebox{height:185px;display:grid;place-items:center;background:#fff;padding:12px}.imagebox img{max-width:100%;max-height:100%;object-fit:contain}
-.content{padding:14px;display:flex;flex-direction:column;gap:9px;flex:1}.title{font-weight:700;line-height:1.35;font-size:15px}.price{font-size:24px;font-weight:900;letter-spacing:-.5px}.old{color:#858b98;text-decoration:line-through;font-size:13px}.discount{font-size:12px;color:#067647;background:#ecfdf3;border-radius:999px;padding:4px 8px;align-self:flex-start;font-weight:750}
-.meta{font-size:12px;color:var(--muted)}.actions{display:grid;gap:8px;margin-top:auto}.actions button,.actions a{display:block;text-align:center;text-decoration:none;padding:10px;border-radius:9px;font-size:13px;font-weight:750}
-.copy{background:var(--brand);color:#222;border:0}.open{border:1px solid #d0d5dd;color:#344054;background:#fff}
-.empty{background:white;border:1px dashed #cbd5e1;border-radius:14px;padding:30px;text-align:center;color:var(--muted);grid-column:1/-1}
+header{background:#101828;color:white;padding:24px 18px 28px}.wrap{max-width:900px;margin:auto}.brand{font-weight:900;font-size:26px;letter-spacing:-.7px}.brand span{color:var(--brand)}header p{color:#d0d5dd;margin:8px 0 0;line-height:1.5}
+main{max-width:900px;margin:22px auto;padding:0 16px 48px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 16px #10182808;margin-bottom:16px}
+h2{font-size:18px;margin:0 0 8px}p{line-height:1.5}.muted,.hint{color:var(--muted);font-size:13px;line-height:1.55}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.step{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13px;line-height:1.5}.num{display:inline-grid;place-items:center;background:var(--brand);width:25px;height:25px;border-radius:50%;font-weight:900;margin-bottom:8px}
+label{font-size:13px;font-weight:750;display:block;margin:12px 0 6px}textarea,input,button{font:inherit;border-radius:10px;padding:12px;border:1px solid #d0d5dd;width:100%;min-width:0}textarea{min-height:145px;resize:vertical;line-height:1.45}input:focus,textarea:focus{outline:2px solid #f5c842;border-color:#e5b900}
+button{border:0;font-weight:750;cursor:pointer;background:var(--brand);color:#242424}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.secondary{background:white;border:1px solid #d0d5dd}.status{font-size:14px;color:var(--muted);margin-top:10px;min-height:20px}
+.preview{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:16px;line-height:1.55;overflow-wrap:anywhere;min-height:100px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fields .full{grid-column:1/-1}
 footer{font-size:12px;color:var(--muted);line-height:1.6;margin-top:20px}
-@media(max-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.controls{grid-template-columns:1fr 1fr}.controls input{grid-column:1/-1}}
-@media(max-width:520px){.grid{grid-template-columns:1fr}.imagebox{height:220px}.controls{grid-template-columns:1fr}.controls input{grid-column:auto}header{padding:20px 16px}}
+@media(max-width:600px){.steps{grid-template-columns:1fr}.buttons,.fields{grid-template-columns:1fr}.fields .full{grid-column:auto}header{padding:20px 16px}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><div class="brand">OFERTA <span>FÁCIL</span></div><p>Encontre produtos baratos no Mercado Livre e prepare a mensagem para divulgar no WhatsApp.</p></div></header>
+<header><div class="wrap"><div class="brand">OFERTA <span>FÁCIL</span></div><p>Transforme uma oferta capturada no Mercado Livre em uma mensagem pronta para divulgar.</p></div></header>
 <main>
 <section class="panel">
-<div class="controls">
-<input id="query" value="" placeholder="Buscar produto (ex.: mouse, fone, teclado)" aria-label="Buscar produto">
-<select id="category" aria-label="Categoria">
-<option value="">Todas as categorias</option>
-<option value="MLB1648">Informática</option>
-<option value="MLB1051">Celulares e Telefones</option>
-<option value="MLB1000">Eletrônicos, Áudio e Vídeo</option>
-<option value="MLB1574">Casa e Decoração</option>
-<option value="MLB1430">Roupas e Acessórios</option>
-<option value="MLB1276">Esportes e Fitness</option>
-</select>
-<button id="search">Buscar ofertas</button>
+<h2>Como usar com o DivulgaNinja</h2>
+<div class="steps">
+<div class="step"><div class="num">1</div><br>Abra o produto no Mercado Livre e aguarde o DivulgaNinja carregar a oferta.</div>
+<div class="step"><div class="num">2</div><br>No painel do DivulgaNinja, clique em <b>Copiar texto</b>.</div>
+<div class="step"><div class="num">3</div><br>Volte aqui, cole o texto abaixo e clique em <b>Preparar mensagem</b>.</div>
 </div>
-<p class="hint">A busca ordena pelo menor preço. Os resultados e descontos dependem dos dados que o Mercado Livre disponibilizar para a API. Confira o anúncio antes de divulgar.</p>
+<p class="hint">A extensão e este site são ferramentas separadas. A importação usa o texto que você copia da extensão; não acessamos seus cookies, tokens ou dados privados.</p>
+<label for="source">Texto copiado do DivulgaNinja</label>
+<textarea id="source" placeholder="Clique em “Copiar texto” no painel do DivulgaNinja e cole aqui (Ctrl+V)."></textarea>
+<div class="buttons"><button id="parse">Preparar mensagem</button><button id="clear" class="secondary">Limpar</button></div>
+<div id="status" class="status" role="status"></div>
 </section>
-<div id="status" class="status" role="status">Carregando produtos de menor preço…</div>
-<section id="results" class="grid" aria-live="polite"></section>
-<footer>Oferta Fácil é uma ferramenta independente e não é afiliada ao Mercado Livre. Preços, estoque, frete e descontos podem mudar. O desconto só será exibido quando a fonte fornecer um preço original válido. A mensagem é copiada para você enviar manualmente; o app não envia mensagens.</footer>
+<section class="panel">
+<h2>Conferir dados da oferta</h2>
+<p class="muted">Confira os campos antes de divulgar. Se algum não for reconhecido, você pode corrigir manualmente.</p>
+<div class="fields">
+<div class="full"><label for="title">Nome do produto</label><input id="title" placeholder="Nome do produto"></div>
+<div><label for="oldPrice">Preço original (R$)</label><input id="oldPrice" inputmode="decimal" placeholder="Ex.: 51,21"></div>
+<div><label for="price">Preço da oferta (R$)</label><input id="price" inputmode="decimal" placeholder="Ex.: 39,65"></div>
+<div class="full"><label for="link">Link para divulgar</label><input id="link" placeholder="https://..."></div>
+</div>
+<div class="buttons"><button id="generate">Atualizar mensagem</button><button id="copy" class="secondary">Copiar mensagem</button></div>
+<div id="message" class="preview" aria-live="polite">Sua mensagem promocional aparecerá aqui.</div>
+<div id="copyStatus" class="status" role="status"></div>
+</section>
+<footer>Oferta Fácil não é afiliado ao Mercado Livre nem ao DivulgaNinja. Confirme preço, desconto, estoque e destino do link antes de publicar. O site prepara o texto; não envia mensagens nem publica ofertas automaticamente.</footer>
 </main>
 <script>
-const $ = id => document.getElementById(id);
-const money = n => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);
-function safeUrl(s){try{const u=new URL(s);return ['https:','http:'].includes(u.protocol)?u.href:'#'}catch{return '#'}}
-function makeMessage(p){
- const price = Number(p.price);
- const old = Number(p.originalPrice);
- const saving = old>price ? `\n🔥 De ${money(old)} por ${money(price)} (${Math.round((old-price)/old*100)}% OFF)` : `\n💰 Por ${money(price)}`;
- return `🛍️ OLHA ESSA OFERTA!\n\n${p.title}${saving}\n\n👉 Confira aqui: ${p.permalink}\n\n_Confira o preço e a disponibilidade no anúncio._`;
+const $=id=>document.getElementById(id);
+function parseMoney(s){if(!s)return null;let v=String(s).replace(/[^\d,.]/g,'').trim();if(!v)return null;if(v.includes(',')&&v.includes('.'))v=v.replace(/\./g,'').replace(',','.');else if(v.includes(','))v=v.replace(',','.');const n=Number(v);return Number.isFinite(n)&&n>0?n:null}
+function money(n){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n)}
+function safeHttpUrl(s){try{const u=new URL(s);return ['https:','http:'].includes(u.protocol)?u.href:''}catch{return ''}}
+function parseSource(){
+ const t=$('source').value.trim();if(!t){$('status').textContent='Cole primeiro o texto copiado do DivulgaNinja.';return}
+ const lines=t.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ // Prefer the title line following the product emoji; otherwise use a plausible descriptive line.
+ let titleLine=lines.find(x=>/^[🛍️📦]️?\s*/u.test(x)&&x.length>12);
+ if(titleLine)titleLine=titleLine.replace(/^[🛍️📦]️?\s*/u,'').trim();
+ if(!titleLine)titleLine=lines.find(x=>x.length>15&&!/oferta imperdível|por apenas|garanta o seu|aproveite antes|^de:/i.test(x));
+ if(titleLine)$('title').value=titleLine.replace(/^🛍️?\s*/u,'').trim();
+ const originalLine=lines.find(x=>/^🏷️?\s*de:/iu.test(x)||/^de:/i.test(x));
+ const offerLine=lines.find(x=>/^💰?\s*por apenas:/iu.test(x)||/^por apenas:/i.test(x)||/^por:/i.test(x));
+ if(originalLine){const m=originalLine.match(/R\$\s*[\d.,]+/i);if(m)$('oldPrice').value=m[0].replace(/R\$\s*/i,'').trim()}
+ if(offerLine){const m=offerLine.match(/R\$\s*[\d.,]+/i);if(m)$('price').value=m[0].replace(/R\$\s*/i,'').trim()}
+ const urls=t.match(/https?:\/\/[^\s)]+/g)||[];const link=urls.find(u=>/meli\.la|mercadolivre\.com|mercadolibre\.com/i.test(u))||urls[0];if(link)$('link').value=link.replace(/[.,]+$/,'');
+ $('status').textContent='Texto importado. Confira os campos e atualize a mensagem antes de divulgar.';
+ generate();
 }
-function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function card(p){
- const old=Number(p.originalPrice),price=Number(p.price);
- const discount=old>price?`<span class="discount">${Math.round((old-price)/old*100)}% OFF</span>`:'';
- const img=safeUrl(p.thumbnail||'');
- const message=makeMessage(p);
- return `<article class="card"><div class="imagebox"><img src="${img}" alt="" loading="lazy" onerror="this.style.display='none'"></div><div class="content"><div class="title">${esc(p.title)}</div><div class="price">${money(price)}</div>${old>price?`<div class="old">${money(old)}</div>`:''}${discount}<div class="meta">${p.condition==='new'?'Novo':'Anúncio do Mercado Livre'}${p.shippingFree?' · Frete grátis':''}</div><div class="actions"><button class="copy" data-message="${encodeURIComponent(message)}">Copiar mensagem</button><a class="open" href="${safeUrl(p.permalink)}" target="_blank" rel="noopener noreferrer">Ver anúncio</a></div></div></article>`;
+function generate(){
+ const title=$('title').value.trim(),price=parseMoney($('price').value),old=parseMoney($('oldPrice').value),link=safeHttpUrl($('link').value.trim());
+ if(!title||!price||!link){$('message').textContent='Preencha o nome do produto, o preço da oferta e um link válido (http ou https).';$('copyStatus').textContent='';return}
+ let priceLine='💰 Por apenas: '+money(price);
+ if(old&&old>price){const pct=Math.round((old-price)/old*100);priceLine='🏷️ De: ~'+money(old)+'~\n💰 Por apenas: '+money(price)+'  ('+pct+'% OFF)'}
+ $('message').textContent='🚀 OFERTA IMPERDÍVEL! 🚀\n\n🛍️ '+title+'\n\n'+priceLine+'\n\n🔗 Garanta o seu: '+link+'\n\n⏳ Aproveite antes que a oferta acabe!';$('copyStatus').textContent='Mensagem atualizada. Confira o preço e o link antes de compartilhar.';
 }
-async function load(){
- const q=$('query').value.trim(),cat=$('category').value;
- $('search').disabled=true;$('status').textContent='Buscando produtos…';$('results').innerHTML='';
- try{
-  const params=new URLSearchParams();if(q)params.set('q',q);if(cat)params.set('category',cat);
-  const r=await fetch('/api/offers?'+params.toString());const data=await r.json();
-  if(!r.ok)throw new Error(data.error||'Não foi possível consultar o Mercado Livre.');
-  const items=(data.results||[]).filter(p=>p.title&&Number(p.price)>0&&p.permalink);
-  $('status').textContent=items.length?`${items.length} produtos encontrados, ordenados pelo menor preço.`:'Nenhum produto encontrado com esses filtros.';
-  $('results').innerHTML=items.length?items.map(card).join(''):'<div class="empty">Nenhum resultado nesta busca. Tente outra palavra ou categoria.</div>';
- }catch(e){$('status').textContent='Não foi possível carregar as ofertas.';$('results').innerHTML=`<div class="empty">${esc(e.message)}<br><br>Se aparecer erro de acesso (401/403), será necessário habilitar a API/autenticação do Mercado Livre para esta aplicação.</div>`}
- finally{$('search').disabled=false}
-}
-$('search').addEventListener('click',load);
-$('query').addEventListener('keydown',e=>{if(e.key==='Enter')load()});
-$('results').addEventListener('click',async e=>{const b=e.target.closest('[data-message]');if(!b)return;try{await navigator.clipboard.writeText(decodeURIComponent(b.dataset.message));b.textContent='Mensagem copiada!';setTimeout(()=>b.textContent='Copiar mensagem',1800)}catch{alert(decodeURIComponent(b.dataset.message))}});
-load();
+async function copyMessage(){const txt=$('message').textContent;if(!txt||txt.startsWith('Sua mensagem')||txt.startsWith('Preencha')){$('copyStatus').textContent='Atualize a mensagem antes de copiar.';return}try{await navigator.clipboard.writeText(txt);$('copyStatus').textContent='Mensagem copiada! Agora é só colar no WhatsApp.'}catch{$('copyStatus').textContent='Não foi possível copiar automaticamente. Selecione o texto da mensagem e copie.'}}
+$('parse').addEventListener('click',parseSource);$('generate').addEventListener('click',generate);$('copy').addEventListener('click',copyMessage);
+$('clear').addEventListener('click',()=>{['source','title','oldPrice','price','link'].forEach(id=>$(id).value='');$('status').textContent='';$('copyStatus').textContent='';$('message').textContent='Sua mensagem promocional aparecerá aqui.'});
 </script>
 </body></html>
